@@ -20,10 +20,12 @@ export function SessionView({ sessionId }: SessionViewProps) {
   const { data: project, isLoading } = api.session.getById.useQuery({ id: sessionId });
   const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
   const [aiMessages, setAiMessages] = useState<Record<string, string>>({});
+  const [generationTimes, setGenerationTimes] = useState<Record<string, string>>({});
   const [initialPrompt, setInitialPrompt] = useState<string | undefined>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showSessionsList, setShowSessionsList] = useState(false);
   const aiMessagesSeeded = useRef(false);
+  const generationStartTime = useRef<number | null>(null);
 
   // Versions popover
   const [showVersions, setShowVersions] = useState(false);
@@ -58,6 +60,11 @@ export function SessionView({ sessionId }: SessionViewProps) {
       setActiveVersionId(data.id);
       if (data.aiMessage) {
         setAiMessages((prev) => ({ ...prev, [data.id]: data.aiMessage! }));
+      }
+      if (generationStartTime.current !== null) {
+        const elapsed = ((Date.now() - generationStartTime.current) / 1000).toFixed(1);
+        setGenerationTimes((prev) => ({ ...prev, [data.id]: `${elapsed}s` }));
+        generationStartTime.current = null;
       }
     },
   });
@@ -103,6 +110,7 @@ export function SessionView({ sessionId }: SessionViewProps) {
     null;
 
   function handleSendPrompt(prompt: string) {
+    generationStartTime.current = Date.now();
     generateVersion.mutate({ sessionId, prompt, parentVersionId: activeVersion?.id });
   }
 
@@ -264,6 +272,7 @@ export function SessionView({ sessionId }: SessionViewProps) {
             onSendPrompt={handleSendPrompt}
             isGenerating={generateVersion.isPending}
             aiMessages={aiMessages}
+            generationTimes={generationTimes}
             initialPrompt={initialPrompt}
           />
         </div>

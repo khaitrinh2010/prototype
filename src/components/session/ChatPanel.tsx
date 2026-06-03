@@ -18,6 +18,7 @@ interface ChatPanelProps {
   onSendPrompt: (prompt: string) => void;
   isGenerating: boolean;
   aiMessages: Record<string, string>;
+  generationTimes: Record<string, string>;
   initialPrompt?: string;
 }
 
@@ -28,6 +29,7 @@ export function ChatPanel({
   onSendPrompt,
   isGenerating,
   aiMessages,
+  generationTimes,
   initialPrompt,
 }: ChatPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -81,6 +83,11 @@ export function ChatPanel({
                     </div>
                     <div className="rounded-2xl rounded-tl-sm bg-white border border-gray-200 px-3.5 py-2.5 shadow-sm">
                       <p className="text-sm font-medium leading-relaxed text-gray-700">{aiMessages[v.id]}</p>
+                      {generationTimes[v.id] && (
+                        <p className="mt-1.5 text-xs font-medium text-gray-400">
+                          ⏱ Done in {generationTimes[v.id]}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
