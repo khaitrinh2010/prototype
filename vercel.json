@@ -1,0 +1,4 @@
+{
+  "installCommand": "pnpm install --ignore-scripts",
+  "buildCommand": "pnpm prisma generate && pnpm build"
+}
